@@ -1,6 +1,7 @@
 Changes in Release 2.3.5
 =============================================
 [SIDP-529] - NPE with isPassive
+[SIDP-530] - Spring mistakenly updated to v3 in IdP 2.3.4 build
 
 Changes in Release 2.3.4
 =============================================
