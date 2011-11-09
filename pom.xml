@@ -53,6 +53,7 @@
             <artifactId>shibboleth-common</artifactId>
             <version>1.3.4</version>
         </dependency>
+        <!-- Override Spring version from parent POM -->
         <dependency>
             <groupId>${spring.groupId}</groupId>
             <artifactId>spring-context-support</artifactId>
@@ -90,6 +91,12 @@
                     <artifactId>commons-logging</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <!-- Override BC version from xmltooling because 1.46 causes an issue with the IdP installer -->
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15</artifactId>
+            <version>1.45</version>
         </dependency>
 
         <!-- Provided dependencies -->
