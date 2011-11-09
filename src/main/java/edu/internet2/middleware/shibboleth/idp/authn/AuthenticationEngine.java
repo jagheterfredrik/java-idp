@@ -540,6 +540,7 @@ public class AuthenticationEngine extends HttpServlet {
             validateSuccessfulAuthentication(loginContext, httpRequest, actualAuthnMethod);
             if(loginContext.getAuthenticationFailure() != null){
                 returnToProfileHandler(httpRequest, httpResponse);
+                return;
             }
 
             // Check for an overridden authn instant.

@@ -1,3 +1,7 @@
+Changes in Release 2.3.5
+=============================================
+[SIDP-529] - NPE with isPassive
+
 Changes in Release 2.3.4
 =============================================
 [SIDP-508] - NullPointerException in AuthenticationEngine
