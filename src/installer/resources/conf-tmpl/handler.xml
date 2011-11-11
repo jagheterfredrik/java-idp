@@ -98,9 +98,9 @@
     </ph:ProfileHandler>
     
     <!-- Login Handlers -->
-    <ph:LoginHandler xsi:type="ph:RemoteUser">
+    <!-- <ph:LoginHandler xsi:type="ph:RemoteUser">
         <ph:AuthenticationMethod>urn:oasis:names:tc:SAML:2.0:ac:classes:unspecified</ph:AuthenticationMethod>
-    </ph:LoginHandler>
+    </ph:LoginHandler>-->
     
     <!-- Login handler that delegates the act of authentication to an external system. -->
     <!-- This login handler and the RemoteUser login handler will be merged in the next major release. -->
@@ -111,13 +111,12 @@
     </ph:LoginHandler>
     -->
     
-    <!--  Username/password login handler -->
-    <!-- 
+    <!--  Username/password login handler -->   
     <ph:LoginHandler xsi:type="ph:UsernamePassword" 
                   jaasConfigurationLocation="file://$IDP_HOME$/conf/login.config">
         <ph:AuthenticationMethod>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport</ph:AuthenticationMethod>
     </ph:LoginHandler>
-    -->
+    
     
     <!-- 
         Removal of this login handler will disable SSO support, that is it will require the user to authenticate 

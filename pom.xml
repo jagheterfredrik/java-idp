@@ -103,6 +103,11 @@
 
         <!-- Runtime dependencies -->
         <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15</artifactId>
+            <version>1.45</version>
+        </dependency>
+        <dependency>
             <groupId>ant-contrib</groupId>
             <artifactId>ant-contrib</artifactId>
             <version>1.0b2</version>
@@ -153,16 +158,6 @@
             </exclusions>
         </dependency>
 
-    <distributionManagement>
-        <repository>
-            <id>release</id>
-            <url>${dist.release.url}</url>
-        </repository>
-        <snapshotRepository>
-            <id>snapshot</id>
-            <url>${dist.release.url}</url>
-        </snapshotRepository>
-    </distributionManagement>
         <!-- Managed Dependencies -->
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -197,6 +192,16 @@
             <artifactId>xmlunit</artifactId>
         </dependency>
     </dependencies>
+    <distributionManagement>
+        <repository>
+            <id>release</id>
+            <url>${dist.release.url}</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshot</id>
+            <url>${dist.release.url}</url>
+        </snapshotRepository>
+    </distributionManagement>
 
     <build>
         <plugins>

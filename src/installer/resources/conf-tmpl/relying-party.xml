@@ -65,7 +65,6 @@
                               signAssertions="never"
                               encryptAssertions="never"
                               encryptNameIds="never"
-                              frontChannelResponseTimeout="20000"
                               backChannelConnectionPoolTimeout="2000"
                               backChannelConnectionTimeout="2000"
                               backChannelResponseTimeout="5000"  />
