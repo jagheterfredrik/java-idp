@@ -59,7 +59,7 @@ public class ExternalAuthnSystemLoginHandler extends AbstractLoginHandler {
     public static final String RELYING_PARTY_PARAM = "relyingParty";
 
     /** Class logger. */
-    private final Logger log = LoggerFactory.getLogger(RemoteUserLoginHandler.class);
+    private final Logger log = LoggerFactory.getLogger(ExternalAuthnSystemLoginHandler.class);
 
     /** The context-relative path to the Filter, Servlet, or JSP that triggers the external authentication system. */
     private String externalAuthnPath;
