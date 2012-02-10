@@ -289,9 +289,13 @@ public class HttpServletHelper {
      * @param httpRequest current HTTP request
      * 
      * @return the login context or null if no login context is bound to the request
+     * 
+     * @deprecated use {@link #getLoginContext(StorageService, ServletContext, HttpServletRequest)} instead
      */
     public static LoginContext getLoginContext(HttpServletRequest httpRequest) {
-        return (LoginContext) httpRequest.getAttribute(LOGIN_CTX_KEY_NAME);
+        ServletContext servletContext = httpRequest.getSession().getServletContext();
+        StorageService storageService = HttpServletHelper.getStorageService(servletContext);
+        return HttpServletHelper.getLoginContext(storageService, servletContext, httpRequest);        
     }
 
     /**
