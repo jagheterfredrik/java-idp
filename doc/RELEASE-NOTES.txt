@@ -1,6 +1,7 @@
 Changes in Release 2.3.6
 =============================================
 [SIDP-532] - ExternalAuthnSystemLoginHandler incorrectly logs as RemoteUserLoginHandler
+[SIDP-536] - LoginContext added to storage service twice but only cleared once
 
 Changes in Release 2.3.5
 =============================================

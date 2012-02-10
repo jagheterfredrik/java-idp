@@ -59,6 +59,7 @@ import edu.internet2.middleware.shibboleth.common.relyingparty.RelyingPartyConfi
 import edu.internet2.middleware.shibboleth.common.relyingparty.provider.SAMLMDRelyingPartyConfigurationManager;
 import edu.internet2.middleware.shibboleth.common.relyingparty.provider.saml1.ShibbolethSSOConfiguration;
 import edu.internet2.middleware.shibboleth.common.util.HttpHelper;
+import edu.internet2.middleware.shibboleth.idp.authn.Saml2LoginContext;
 import edu.internet2.middleware.shibboleth.idp.authn.ShibbolethSSOLoginContext;
 import edu.internet2.middleware.shibboleth.idp.authn.LoginContext;
 import edu.internet2.middleware.shibboleth.idp.util.HttpServletHelper;
@@ -110,29 +111,47 @@ public class ShibbolethSSOProfileHandler extends AbstractSAML1ProfileHandler {
     public String getProfileId() {
         return ShibbolethSSOConfiguration.PROFILE_ID;
     }
-
+    
     /** {@inheritDoc} */
     public void processRequest(HTTPInTransport inTransport, HTTPOutTransport outTransport) throws ProfileException {
-        log.debug("Processing incoming request");
-
         HttpServletRequest httpRequest = ((HttpServletRequestAdapter) inTransport).getWrappedRequest();
         HttpServletResponse httpResponse = ((HttpServletResponseAdapter) outTransport).getWrappedResponse();
         ServletContext servletContext = httpRequest.getSession().getServletContext();
 
-	LoginContext loginContext = HttpServletHelper.getLoginContext(
-                getStorageService(), servletContext, httpRequest);
-
-        if (loginContext == null || !(loginContext instanceof ShibbolethSSOLoginContext)) {
-            log.debug("Incoming request does not contain a login context, processing as first leg of request");
-            performAuthentication(inTransport, outTransport);
-        } else if (loginContext.isPrincipalAuthenticated() || loginContext.getAuthenticationFailure() != null) {
-            log.debug("Incoming request contains a login context, processing as second leg of request");
+        LoginContext loginContext = HttpServletHelper.getLoginContext(getStorageService(),
+                servletContext, httpRequest);
+        
+        if(loginContext != null){
             HttpServletHelper.unbindLoginContext(getStorageService(), servletContext, httpRequest, httpResponse);
-            completeAuthenticationRequest((ShibbolethSSOLoginContext)loginContext, inTransport, outTransport);
-        } else {
-            log.debug("Incoming request contained a login context but principal was not authenticated, processing as first leg of request");
-            performAuthentication(inTransport, outTransport);
+            
+            if(!(loginContext instanceof ShibbolethSSOLoginContext)){
+                log.debug("Incoming request contained a login context but it was not a ShibbolethSSOLoginContext, processing as first leg of request");
+                performAuthentication(inTransport, outTransport);
+                return;
+            }
+            
+            if(!loginContext.isPrincipalAuthenticated()){
+                log.debug("Incoming request contains a login context but principal was not authenticated, processing first leg of request");
+                performAuthentication(inTransport, outTransport);
+                return;
+            }
+            
+            if(loginContext.isPrincipalAuthenticated()){
+                log.debug("Incoming request contains a login context and indicates principal was authenticated, processing second leg of request");
+                completeAuthenticationRequest((ShibbolethSSOLoginContext)loginContext, inTransport, outTransport);
+                return;
+            }
+            
+            if(loginContext.getAuthenticationFailure() != null){
+                log.debug("Incoming request contains a login context and indicates there was an error authenticating the principal, processing second leg of request");
+                completeAuthenticationRequest((ShibbolethSSOLoginContext)loginContext, inTransport, outTransport);
+                return;
+            }
         }
+        
+        log.debug("Incoming request does not contain a login context, processing as first leg of request");
+        performAuthentication(inTransport, outTransport);
+        return;
     }
 
     /**
