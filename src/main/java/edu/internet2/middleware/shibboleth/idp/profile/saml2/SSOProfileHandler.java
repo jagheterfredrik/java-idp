@@ -215,6 +215,8 @@ public class SSOProfileHandler extends AbstractSAML2ProfileHandler {
             RelyingPartyConfiguration rpConfig = getRelyingPartyConfiguration(relyingPartyId);
             ProfileConfiguration ssoConfig = rpConfig.getProfileConfiguration(getProfileId());
             if (ssoConfig == null) {
+                requestContext.setFailureStatus(buildStatus(StatusCode.RESPONDER_URI, null,
+                        "SAML 2 SSO profile not configured"));
                 String msg = "SAML 2 SSO profile is not configured for relying party "
                         + requestContext.getInboundMessageIssuer();
                 log.warn(msg);
@@ -237,9 +239,13 @@ public class SSOProfileHandler extends AbstractSAML2ProfileHandler {
             log.debug("Redirecting user to authentication engine at {}", authnEngineUrl);
             httpResponse.sendRedirect(authnEngineUrl);
         } catch (MarshallingException e) {
+            requestContext.setFailureStatus(buildStatus(StatusCode.RESPONDER_URI, null,
+                    "Unable to marshall request"));
             log.error("Unable to marshall authentication request context");
             throw new ProfileException("Unable to marshall authentication request context", e);
         } catch (IOException ex) {
+            requestContext.setFailureStatus(buildStatus(StatusCode.RESPONDER_URI, null,
+                    "Unable to perform user authentication"));
             log.error("Error forwarding SAML 2 AuthnRequest to AuthenticationManager", ex);
             throw new ProfileException("Error forwarding SAML 2 AuthnRequest to AuthenticationManager", ex);
         }
@@ -361,10 +367,14 @@ public class SSOProfileHandler extends AbstractSAML2ProfileHandler {
                 throw new ProfileException("Invalid SAML AuthnRequest message.");
             }
         } catch (MessageDecodingException e) {
+            requestContext.setFailureStatus(buildStatus(StatusCode.RESPONDER_URI, null,
+                    "Unable to decode request"));
             String msg = "Error decoding authentication request message";
             log.warn(msg, e);
             throw new ProfileException(msg, e);
         } catch (SecurityException e) {
+            requestContext.setFailureStatus(buildStatus(StatusCode.RESPONDER_URI, null,
+                    "Request did not meet security requirements"));
             String msg = "Message did not meet security requirements";
             log.warn(msg, e);
             throw new ProfileException(msg, e);

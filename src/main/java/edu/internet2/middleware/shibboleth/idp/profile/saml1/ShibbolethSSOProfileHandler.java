@@ -40,7 +40,6 @@ import org.opensaml.saml2.metadata.Endpoint;
 import org.opensaml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml2.metadata.IDPSSODescriptor;
 import org.opensaml.saml2.metadata.SPSSODescriptor;
-import org.opensaml.util.URLBuilder;
 import org.opensaml.ws.message.decoder.MessageDecodingException;
 import org.opensaml.ws.transport.http.HTTPInTransport;
 import org.opensaml.ws.transport.http.HTTPOutTransport;
@@ -59,9 +58,8 @@ import edu.internet2.middleware.shibboleth.common.relyingparty.RelyingPartyConfi
 import edu.internet2.middleware.shibboleth.common.relyingparty.provider.SAMLMDRelyingPartyConfigurationManager;
 import edu.internet2.middleware.shibboleth.common.relyingparty.provider.saml1.ShibbolethSSOConfiguration;
 import edu.internet2.middleware.shibboleth.common.util.HttpHelper;
-import edu.internet2.middleware.shibboleth.idp.authn.Saml2LoginContext;
-import edu.internet2.middleware.shibboleth.idp.authn.ShibbolethSSOLoginContext;
 import edu.internet2.middleware.shibboleth.idp.authn.LoginContext;
+import edu.internet2.middleware.shibboleth.idp.authn.ShibbolethSSOLoginContext;
 import edu.internet2.middleware.shibboleth.idp.util.HttpServletHelper;
 
 /** Shibboleth SSO request profile handler. */
@@ -178,6 +176,8 @@ public class ShibbolethSSOProfileHandler extends AbstractSAML1ProfileHandler {
         loginContext.setDefaultAuthenticationMethod(rpConfig.getDefaultAuthenticationMethod());
         ProfileConfiguration ssoConfig = rpConfig.getProfileConfiguration(ShibbolethSSOConfiguration.PROFILE_ID);
         if (ssoConfig == null) {
+            requestContext.setFailureStatus(buildStatus(StatusCode.RESPONDER, StatusCode.REQUEST_DENIED,
+                    "Shibboleth SSO profile is not configured"));
             String msg = "Shibboleth SSO profile is not configured for relying party "
                     + loginContext.getRelyingPartyId();
             log.warn(msg);
@@ -193,6 +193,8 @@ public class ShibbolethSSOProfileHandler extends AbstractSAML1ProfileHandler {
             log.debug("Redirecting user to authentication engine at {}", authnEngineUrl);
             httpResponse.sendRedirect(authnEngineUrl);
         } catch (IOException e) {
+            requestContext.setFailureStatus(buildStatus(StatusCode.RESPONDER, StatusCode.REQUEST_DENIED,
+                    "Unable to perform user authentication"));
             String msg = "Error forwarding Shibboleth SSO request to AuthenticationManager";
             log.error(msg, e);
             throw new ProfileException(msg, e);
@@ -237,10 +239,14 @@ public class ShibbolethSSOProfileHandler extends AbstractSAML1ProfileHandler {
             log.debug("Decoded Shibboleth SSO request from relying party '{}'",
                     requestContext.getInboundMessageIssuer());
         } catch (MessageDecodingException e) {
+            requestContext.setFailureStatus(buildStatus(StatusCode.RESPONDER, StatusCode.REQUEST_DENIED,
+                    "Error decoding request"));
             String msg = "Error decoding Shibboleth SSO request";
             log.warn(msg, e);
             throw new ProfileException(msg, e);
         } catch (SecurityException e) {
+            requestContext.setFailureStatus(buildStatus(StatusCode.RESPONDER, StatusCode.REQUEST_DENIED,
+                    "Request does not meet security requirements"));
             String msg = "Shibboleth SSO request does not meet security requirements: " + e.getMessage();
             log.warn(msg);
             throw new ProfileException(msg, e);

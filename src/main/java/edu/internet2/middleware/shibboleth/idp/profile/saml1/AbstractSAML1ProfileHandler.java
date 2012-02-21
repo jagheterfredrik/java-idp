@@ -408,7 +408,12 @@ public abstract class AbstractSAML1ProfileHandler extends AbstractSAMLProfileHan
         samlResponse.setIssueInstant(new DateTime());
         populateStatusResponse(requestContext, samlResponse);
 
-        samlResponse.setStatus(requestContext.getFailureStatus());
+        Status status = requestContext.getFailureStatus();
+        if(status == null){
+            status = buildStatus(StatusCode.RESPONDER, null, null);
+            requestContext.setFailureStatus(status);
+        }
+        samlResponse.setStatus(status);
 
         return samlResponse;
     }
@@ -591,6 +596,8 @@ public abstract class AbstractSAML1ProfileHandler extends AbstractSAMLProfileHan
         }
 
         if (signatureCredential == null) {
+            requestContext.setFailureStatus(buildStatus(StatusCode.RESPONDER, StatusCode.REQUEST_DENIED,
+                    "No signing credential available"));
             String msg = "No signing credential is specified for relying party configuration "
                     + requestContext.getRelyingPartyConfiguration().getProviderId();
             log.warn(msg);
@@ -606,6 +613,8 @@ public abstract class AbstractSAML1ProfileHandler extends AbstractSAMLProfileHan
             // TODO how to pull what keyInfoGenName to use?
             SecurityHelper.prepareSignatureParams(signature, signatureCredential, null, null);
         } catch (SecurityException e) {
+            requestContext.setFailureStatus(buildStatus(StatusCode.RESPONDER, StatusCode.REQUEST_DENIED,
+                    "Unable to prepare assertion signature"));
             String msg = "Error preparing signature for signing";
             log.error(msg);
             throw new ProfileException(msg, e);
@@ -618,10 +627,14 @@ public abstract class AbstractSAML1ProfileHandler extends AbstractSAMLProfileHan
             assertionMarshaller.marshall(assertion);
             Signer.signObject(signature);
         } catch (MarshallingException e) {
+            requestContext.setFailureStatus(buildStatus(StatusCode.RESPONDER, StatusCode.REQUEST_DENIED,
+                    "Unable to marshall assertion"));
             String errMsg = "Unable to marshall assertion for signing";
             log.error(errMsg, e);
             throw new ProfileException(errMsg, e);
         } catch (SignatureException e) {
+            requestContext.setFailureStatus(buildStatus(StatusCode.RESPONDER, StatusCode.REQUEST_DENIED,
+                    "Error computing assertion signature"));
             String msg = "Unable to sign assertion";
             log.error(msg, e);
             throw new ProfileException(msg, e);
@@ -659,6 +672,8 @@ public abstract class AbstractSAML1ProfileHandler extends AbstractSAMLProfileHan
 
             return signAssertion;
         } catch (MessageEncodingException e) {
+            requestContext.setFailureStatus(buildStatus(StatusCode.RESPONDER, StatusCode.REQUEST_DENIED,
+                    "Unable to determine if outbound assertion should be signed"));
             log.error("Unable to determine if outbound encoding '{}' provides message integrity protection", encoder
                     .getBindingURI());
             throw new ProfileException("Unable to determine if outbound assertion should be signed");
