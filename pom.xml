@@ -26,7 +26,7 @@
     <properties>
         <svn.relative.location>java-shib-idp2</svn.relative.location>
         <spring.groupId>org.springframework</spring.groupId>
-        <spring.version>2.5.6.SEC02</spring.version>
+        <spring.version>2.5.6.SEC03</spring.version>
     </properties>
 
     <repositories>
@@ -51,7 +51,7 @@
         <dependency>
             <groupId>edu.internet2.middleware</groupId>
             <artifactId>shibboleth-common</artifactId>
-            <version>1.3.4</version>
+            <version>1.3.5</version>
         </dependency>
         <!-- Override Spring version from parent POM -->
         <dependency>
