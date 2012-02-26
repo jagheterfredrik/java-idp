@@ -28,7 +28,6 @@ public class ShibTestBootstrap extends DefaultBootstrap {
     /** List of XMLTooling configuration files with test configuration. */
     private static String[] testConfigs = { "/shibboleth-saml-ext-config.xml", };
 
-    /** {@inheritDoc} */
     public static synchronized void bootstrap() throws ConfigurationException {
         DefaultBootstrap.bootstrap();
 
