@@ -1,3 +1,15 @@
+Changes in Release 2.3.6
+=============================================
+[SIDP-532] - ExternalAuthnSystemLoginHandler incorrectly logs as RemoteUserLoginHandler
+[SIDP-536] - LoginContext added to storage service twice but only cleared once
+[SIDP-538] - Response does not contain Status when assertion assigning is enabled but signing credential is improperly configured
+[SIDP-539] - Update dependencies
+
+Changes in Release 2.3.5
+=============================================
+[SIDP-529] - NPE with isPassive
+[SIDP-530] - Spring mistakenly updated to v3 in IdP 2.3.4 build
+
 Changes in Release 2.3.4
 =============================================
 [SIDP-508] - NullPointerException in AuthenticationEngine

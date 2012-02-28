@@ -63,7 +63,7 @@ public class UnsolicitedSSODecoder extends BaseSAML2MessageDecoder implements SA
     private final Logger log = LoggerFactory.getLogger(UnsolicitedSSODecoder.class);
 
     /** The binding URI default value. */
-    public String defaultBinding;
+    private String defaultBinding;
     
     /** AuthnRequest builder. */
     private SAMLObjectBuilder<AuthnRequest> authnRequestBuilder;

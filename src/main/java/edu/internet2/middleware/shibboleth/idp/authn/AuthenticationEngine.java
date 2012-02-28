@@ -259,9 +259,6 @@ public class AuthenticationEngine extends HttpServlet {
             loginContext.setAuthenticationAttempted();
             loginContext.setAuthenticationEngineURL(HttpHelper.getRequestUriWithoutContext(httpRequest));
 
-            // Send the request to the login handler
-            HttpServletHelper.bindLoginContext(loginContext, storageService, getServletContext(), httpRequest,
-                    httpResponse);
             loginHandler.login(httpRequest, httpResponse);
         } catch (AuthenticationException e) {
             loginContext.setAuthenticationFailure(e);
@@ -540,6 +537,7 @@ public class AuthenticationEngine extends HttpServlet {
             validateSuccessfulAuthentication(loginContext, httpRequest, actualAuthnMethod);
             if(loginContext.getAuthenticationFailure() != null){
                 returnToProfileHandler(httpRequest, httpResponse);
+                return;
             }
 
             // Check for an overridden authn instant.

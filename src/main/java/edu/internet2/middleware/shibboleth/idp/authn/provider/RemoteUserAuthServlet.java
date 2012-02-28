@@ -37,9 +37,9 @@ import edu.internet2.middleware.shibboleth.idp.authn.UsernamePrincipal;
 /**
  * Extracts the REMOTE_USER and places it in a request attribute to be used by the authentication engine.
  * 
- * By default, this Servlet assumes that the authentication method {@value AuthnContext#PPT_AUTHN_CTX} to be returned to
- * the authentication engine. This can be override by setting the servlet configuration parameter
- * {@value LoginHandler#AUTHENTICATION_METHOD_KEY}.
+ * By default, this Servlet assumes that the authentication method
+ * <code>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport</code> to be returned to the authentication
+ * engine. This can be override by setting the servlet configuration parameter <code>authnMethod</code>.
  */
 public class RemoteUserAuthServlet extends HttpServlet {
 
