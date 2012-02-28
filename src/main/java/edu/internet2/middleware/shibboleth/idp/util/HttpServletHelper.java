@@ -32,8 +32,6 @@ import org.opensaml.xml.util.DatatypeHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import sun.security.action.GetLongAction;
-
 import edu.internet2.middleware.shibboleth.common.attribute.filtering.AttributeFilteringEngine;
 import edu.internet2.middleware.shibboleth.common.attribute.provider.SAML1AttributeAuthority;
 import edu.internet2.middleware.shibboleth.common.attribute.provider.SAML2AttributeAuthority;
@@ -291,9 +289,13 @@ public class HttpServletHelper {
      * @param httpRequest current HTTP request
      * 
      * @return the login context or null if no login context is bound to the request
+     * 
+     * @deprecated use {@link #getLoginContext(StorageService, ServletContext, HttpServletRequest)} instead
      */
     public static LoginContext getLoginContext(HttpServletRequest httpRequest) {
-        return (LoginContext) httpRequest.getAttribute(LOGIN_CTX_KEY_NAME);
+        ServletContext servletContext = httpRequest.getSession().getServletContext();
+        StorageService storageService = HttpServletHelper.getStorageService(servletContext);
+        return HttpServletHelper.getLoginContext(storageService, servletContext, httpRequest);        
     }
 
     /**
@@ -604,10 +606,10 @@ public class HttpServletHelper {
         String storageServicePartition = getContextParam(context, LOGIN_CTX_PARTITION_CTX_PARAM,
                 DEFAULT_LOGIN_CTX_PARITION);
 
-        log.debug("Removing LoginContext, with key {}, from StorageService partition {}", loginContextKey,
-                storageServicePartition);
         LoginContextEntry entry = (LoginContextEntry) storageService.remove(storageServicePartition, loginContextKey);
         if (entry != null && !entry.isExpired()) {
+            log.debug("Removed LoginContext, with key {}, from StorageService partition {}", loginContextKey,
+                    storageServicePartition);
             return entry.getLoginContext();
         }
 
