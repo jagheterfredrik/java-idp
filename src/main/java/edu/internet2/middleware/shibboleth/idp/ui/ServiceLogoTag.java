@@ -119,9 +119,10 @@ public class ServiceLogoTag extends ServiceTagSupport {
         return logo.getHeight() <= maxHeight && logo.getHeight() >= minHeight && logo.getWidth() <= maxWidth
                 && logo.getWidth() >= minWidth;
     }
-    
+
     /**
      * get an appropriate logo by lanaguage from the UIInfo.
+     * 
      * @param logos what to look through
      * @return an appropriate logo.
      */
@@ -129,10 +130,17 @@ public class ServiceLogoTag extends ServiceTagSupport {
         for (String lang : getBrowserLanguages()) {
             // By language first
             for (Logo logo : logos) {
+                if (null == logo.getXMLLang()) {
+                    continue;
+                }
                 log.debug("Found logo in UIInfo, language=" + logo.getXMLLang() + " width=" + logo.getWidth()
                         + " height=" + logo.getHeight());
-                if (null == logo.getXMLLang() || !logo.getXMLLang().equals(lang) || !logoFits(logo)) {
-                    // No language, language mismatch or not fitting
+                if (!logo.getXMLLang().equals(lang)) {
+                    log.debug("Language mismatch against " + lang);
+                    continue;
+                }
+                if (!logo.getXMLLang().equals(lang) || !logoFits(logo)) {
+                    log.debug("Size Mismatch");
                     continue;
                 }
                 // Found it
@@ -142,13 +150,16 @@ public class ServiceLogoTag extends ServiceTagSupport {
         }
         // Then by no language
         for (Logo logo : getSPUIInfo().getLogos()) {
-            log.debug("Found logo in UIInfo, language=" + logo.getXMLLang() + " width=" + logo.getWidth()
-                    + " height=" + logo.getHeight());
-            if (null == logo.getXMLLang() && logoFits(logo)) {
+            if (null != logo.getXMLLang()) {
+                continue;
+            }
+            log.debug("Found logo in UIInfo, width=" + logo.getWidth() + " height=" + logo.getHeight());
+            if (logoFits(logo)) {
                 // null language and it fits
                 log.debug("returning logo from UIInfo " + logo.getURL());
                 return logo.getURL();
             }
+            log.debug("Mismatch for size");
         }
         return null;
     }
@@ -162,9 +173,9 @@ public class ServiceLogoTag extends ServiceTagSupport {
     private String getLogoFromUIInfo() {
 
         if (getSPUIInfo() != null && getSPUIInfo().getLogos() != null) {
-            
+
             String result = getLogoFromUIInfo(getSPUIInfo().getLogos());
-            
+
             if (null != result) {
                 return result;
             }
@@ -217,8 +228,8 @@ public class ServiceLogoTag extends ServiceTagSupport {
             URI theUrl = new URI(url);
             String scheme = theUrl.getScheme();
 
-            if (!"http".equals(scheme) && !"https".equals(scheme) && !"mailto".equals(scheme)) {
-                log.warn("The logo URL " + url + " contained an invalid scheme");
+            if (!"http".equals(scheme) && !"https".equals(scheme) && !"data".equals(scheme)) {
+                log.warn("The logo URL " + url + " contained an invalid scheme (expected http:, https: or data:)");
                 return null;
             }
         } catch (URISyntaxException e) {
@@ -240,7 +251,7 @@ public class ServiceLogoTag extends ServiceTagSupport {
         return sb.toString();
     }
 
-    @Override
+    @Override 
     public int doEndTag() throws JspException {
 
         String result = getHyperlink();
