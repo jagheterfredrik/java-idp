@@ -128,12 +128,6 @@ public class ShibbolethSSOProfileHandler extends AbstractSAML1ProfileHandler {
                 return;
             }
             
-            if(!loginContext.isPrincipalAuthenticated()){
-                log.debug("Incoming request contains a login context but principal was not authenticated, processing first leg of request");
-                performAuthentication(inTransport, outTransport);
-                return;
-            }
-            
             if(loginContext.isPrincipalAuthenticated()){
                 log.debug("Incoming request contains a login context and indicates principal was authenticated, processing second leg of request");
                 completeAuthenticationRequest((ShibbolethSSOLoginContext)loginContext, inTransport, outTransport);
@@ -145,6 +139,10 @@ public class ShibbolethSSOProfileHandler extends AbstractSAML1ProfileHandler {
                 completeAuthenticationRequest((ShibbolethSSOLoginContext)loginContext, inTransport, outTransport);
                 return;
             }
+
+            log.debug("Incoming request contains a login context but principal was not authenticated, processing first leg of request");
+            performAuthentication(inTransport, outTransport);
+            return;
         }
         
         log.debug("Incoming request does not contain a login context, processing as first leg of request");

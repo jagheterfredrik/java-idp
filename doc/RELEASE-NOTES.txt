@@ -1,3 +1,7 @@
+Changes since Release 2.3.6
+=============================================
+[SIDP-549] - Incorrect handling of returned authn error in SSO profile handlers
+
 Changes in Release 2.3.6
 =============================================
 [SIDP-532] - ExternalAuthnSystemLoginHandler incorrectly logs as RemoteUserLoginHandler
