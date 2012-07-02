@@ -1,5 +1,10 @@
+Changes in Release 2.3.8
+=============================================
+- Pick up shib-common lib 1.3.7 that contains a fix for SC-183
+
 Changes in Release 2.3.7
 =============================================
+[SIDP-543] - No support for data URI in combination with MDUI Logo but for mailto?
 [SIDP-547] - VelocityEngine initialization was not effectively using UTF-8 input and output encoding
 [SIDP-549] - Incorrect handling of returned authn error in SSO profile handlers
 [SIDP-550] - Default IdP metadata provider uses an undocumented plugin
