@@ -18,7 +18,8 @@
 package edu.internet2.middleware.shibboleth.idp.profile;
 
 import java.io.File;
-import java.io.OutputStreamWriter;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,6 +37,10 @@ import org.opensaml.xml.util.DatatypeHelper;
 import org.opensaml.xml.util.XMLHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Node;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.w3c.dom.ls.LSOutput;
+import org.w3c.dom.ls.LSSerializer;
 
 import edu.internet2.middleware.shibboleth.common.profile.ProfileException;
 import edu.internet2.middleware.shibboleth.common.profile.provider.AbstractRequestURIMappedProfileHandler;
@@ -73,19 +78,19 @@ public class SAMLMetadataProfileHandler extends AbstractRequestURIMappedProfileH
     public void processRequest(InTransport in, OutTransport out) throws ProfileException {
         XMLObject metadata;
 
-        HttpServletRequest httpRequest = ((HttpServletRequestAdapter)in).getWrappedRequest();
-        HttpServletResponse httpResponse = ((HttpServletResponseAdapter)out).getWrappedResponse();
-        
+        HttpServletRequest httpRequest = ((HttpServletRequestAdapter) in).getWrappedRequest();
+        HttpServletResponse httpResponse = ((HttpServletResponseAdapter) out).getWrappedResponse();
+
         String acceptHeder = DatatypeHelper.safeTrimOrNullString(httpRequest.getHeader("Accept"));
-        if(acceptHeder != null && !acceptHeder.contains("application/samlmetadata+xml")){
+        if (acceptHeder != null && !acceptHeder.contains("application/samlmetadata+xml")) {
             httpResponse.setContentType("application/xml");
-        }else{
+        } else {
             httpResponse.setContentType("application/samlmetadata+xml");
         }
-        
+
         try {
-            String requestedEntity = DatatypeHelper.safeTrimOrNullString(((HttpServletRequestAdapter) in)
-                    .getParameterValue("entity"));
+            String requestedEntity =
+                    DatatypeHelper.safeTrimOrNullString(((HttpServletRequestAdapter) in).getParameterValue("entity"));
             if (requestedEntity != null) {
                 metadata = metadataProvider.getEntityDescriptor(requestedEntity);
             } else {
@@ -94,11 +99,29 @@ public class SAMLMetadataProfileHandler extends AbstractRequestURIMappedProfileH
 
             if (metadata != null) {
                 Marshaller marshaller = Configuration.getMarshallerFactory().getMarshaller(metadata);
-                XMLHelper.writeNode(marshaller.marshall(metadata), new OutputStreamWriter(out.getOutgoingStream()));
+                writeNode(marshaller.marshall(metadata), out.getOutgoingStream(), Charset.forName("UTF-8"));
             }
         } catch (Exception e) {
             log.error("Unable to retrieve and return metadata", e);
             throw new ProfileException(e);
         }
+    }
+
+    /**
+     * Writes out the DOM node to a given output stream using a given output encoding.
+     * 
+     * @param node node to write out
+     * @param output output stream to which the node is written
+     * @param outputEncoding character encoding used by the serializer
+     */
+    private void writeNode(Node node, OutputStream output, Charset outputEncoding) {
+        DOMImplementationLS domImplLS = XMLHelper.getLSDOMImpl(node);
+        LSSerializer serializer = XMLHelper.getLSSerializer(domImplLS, null);
+
+        LSOutput serializerOut = domImplLS.createLSOutput();
+        serializerOut.setEncoding(outputEncoding.name());
+        serializerOut.setByteStream(output);
+
+        serializer.write(node, serializerOut);
     }
 }

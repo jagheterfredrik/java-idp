@@ -242,6 +242,8 @@ public class ArtifactResolution extends AbstractSAML1ProfileHandler {
         List<AssertionArtifact> assertionArtifacts = request.getAssertionArtifacts();
 
         if (assertionArtifacts == null || assertionArtifacts.size() == 0) {
+            requestContext.setFailureStatus(buildStatus(StatusCode.RESPONDER, StatusCode.REQUEST_DENIED,
+                    "No AssertionArtifacts available in request"));
             String msg = "No AssertionArtifacts available in request from relying party "
                     + requestContext.getInboundMessageIssuer();
             log.warn(msg);

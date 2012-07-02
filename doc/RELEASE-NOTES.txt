@@ -1,3 +1,18 @@
+Changes in Release 2.3.7
+=============================================
+[SIDP-543] - No support for data URI in combination with MDUI Logo but for mailto?
+[SIDP-547] - VelocityEngine initialization was not effectively using UTF-8 input and output encoding
+[SIDP-549] - Incorrect handling of returned authn error in SSO profile handlers
+[SIDP-550] - Default IdP metadata provider uses an undocumented plugin
+[SIDP-552] - IdP-Metadata containing german umlauts shows encoding-problems on Microsoft Windows
+
+Changes in Release 2.3.6
+=============================================
+[SIDP-532] - ExternalAuthnSystemLoginHandler incorrectly logs as RemoteUserLoginHandler
+[SIDP-536] - LoginContext added to storage service twice but only cleared once
+[SIDP-538] - Response does not contain Status when assertion assigning is enabled but signing credential is improperly configured
+[SIDP-539] - Update dependencies
+
 Changes in Release 2.3.5
 =============================================
 [SIDP-529] - NPE with isPassive

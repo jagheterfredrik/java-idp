@@ -48,9 +48,9 @@ import edu.internet2.middleware.shibboleth.idp.authn.UsernamePrincipal;
  * This Servlet authenticates a user via JAAS. The user's credential is always added to the returned {@link Subject} as
  * a {@link UsernamePasswordCredential} within the subject's private credentials.
  * 
- * By default, this Servlet assumes that the authentication method {@value AuthnContext#PPT_AUTHN_CTX} to be returned to
- * the authentication engine. This can be override by setting the servlet configuration parameter
- * {@value LoginHandler#AUTHENTICATION_METHOD_KEY}.
+ * By default, this Servlet assumes that the authentication method
+ * <code>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport</code> to be returned to the authentication
+ * engine. This can be override by setting the servlet configuration parameter <code>authnMethod</code>.
  */
 public class UsernamePasswordLoginServlet extends HttpServlet {
 

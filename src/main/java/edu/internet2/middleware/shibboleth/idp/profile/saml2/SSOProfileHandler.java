@@ -158,17 +158,36 @@ public class SSOProfileHandler extends AbstractSAML2ProfileHandler {
 
         LoginContext loginContext = HttpServletHelper.getLoginContext(getStorageService(),
                 servletContext, httpRequest);
-        if (loginContext == null || !(loginContext instanceof Saml2LoginContext)) {
-            log.debug("Incoming request does not contain a login context, processing as first leg of request");
-            performAuthentication(inTransport, outTransport);
-        } else if (loginContext.isPrincipalAuthenticated() || loginContext.getAuthenticationFailure() != null) {
-            log.debug("Incoming request contains a login context, processing as second leg of request");
+        
+        if(loginContext != null){
             HttpServletHelper.unbindLoginContext(getStorageService(), servletContext, httpRequest, httpResponse);
-            completeAuthenticationRequest((Saml2LoginContext)loginContext, inTransport, outTransport);
-        } else {
-            log.debug("Incoming request contained a login context but principal was not authenticated, processing as first leg of request");
+            
+            if(!(loginContext instanceof Saml2LoginContext)){
+                log.debug("Incoming request contained a login context but it was not a Saml2LoginContext, processing as first leg of request");
+                performAuthentication(inTransport, outTransport);
+                return;
+            }
+                        
+            if(loginContext.isPrincipalAuthenticated()){
+                log.debug("Incoming request contains a login context and indicates principal was authenticated, processing second leg of request");
+                completeAuthenticationRequest((Saml2LoginContext)loginContext, inTransport, outTransport);
+                return;
+            }
+            
+            if(loginContext.getAuthenticationFailure() != null){
+                log.debug("Incoming request contains a login context and indicates there was an error authenticating the principal, processing second leg of request");
+                completeAuthenticationRequest((Saml2LoginContext)loginContext, inTransport, outTransport);
+                return;
+            }
+
+            log.debug("Incoming request contains a login context but principal was not authenticated, processing first leg of request");
             performAuthentication(inTransport, outTransport);
+            return;
         }
+        
+        log.debug("Incoming request does not contain a login context, processing as first leg of request");
+        performAuthentication(inTransport, outTransport);
+        return;
     }
 
     /**
@@ -196,6 +215,8 @@ public class SSOProfileHandler extends AbstractSAML2ProfileHandler {
             RelyingPartyConfiguration rpConfig = getRelyingPartyConfiguration(relyingPartyId);
             ProfileConfiguration ssoConfig = rpConfig.getProfileConfiguration(getProfileId());
             if (ssoConfig == null) {
+                requestContext.setFailureStatus(buildStatus(StatusCode.RESPONDER_URI, null,
+                        "SAML 2 SSO profile not configured"));
                 String msg = "SAML 2 SSO profile is not configured for relying party "
                         + requestContext.getInboundMessageIssuer();
                 log.warn(msg);
@@ -218,9 +239,13 @@ public class SSOProfileHandler extends AbstractSAML2ProfileHandler {
             log.debug("Redirecting user to authentication engine at {}", authnEngineUrl);
             httpResponse.sendRedirect(authnEngineUrl);
         } catch (MarshallingException e) {
+            requestContext.setFailureStatus(buildStatus(StatusCode.RESPONDER_URI, null,
+                    "Unable to marshall request"));
             log.error("Unable to marshall authentication request context");
             throw new ProfileException("Unable to marshall authentication request context", e);
         } catch (IOException ex) {
+            requestContext.setFailureStatus(buildStatus(StatusCode.RESPONDER_URI, null,
+                    "Unable to perform user authentication"));
             log.error("Error forwarding SAML 2 AuthnRequest to AuthenticationManager", ex);
             throw new ProfileException("Error forwarding SAML 2 AuthnRequest to AuthenticationManager", ex);
         }
@@ -356,10 +381,14 @@ public class SSOProfileHandler extends AbstractSAML2ProfileHandler {
                 throw new ProfileException("Invalid SAML AuthnRequest message.");
             }
         } catch (MessageDecodingException e) {
+            requestContext.setFailureStatus(buildStatus(StatusCode.RESPONDER_URI, null,
+                    "Unable to decode request"));
             String msg = "Error decoding authentication request message";
             log.warn(msg, e);
             throw new ProfileException(msg, e);
         } catch (SecurityException e) {
+            requestContext.setFailureStatus(buildStatus(StatusCode.RESPONDER_URI, null,
+                    "Request did not meet security requirements"));
             String msg = "Message did not meet security requirements";
             log.warn(msg, e);
             throw new ProfileException(msg, e);

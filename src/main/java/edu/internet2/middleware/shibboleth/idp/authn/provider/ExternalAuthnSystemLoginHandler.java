@@ -20,10 +20,12 @@ package edu.internet2.middleware.shibboleth.idp.authn.provider;
 import java.io.IOException;
 
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.opensaml.util.storage.StorageService;
 import org.opensaml.xml.util.DatatypeHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +61,7 @@ public class ExternalAuthnSystemLoginHandler extends AbstractLoginHandler {
     public static final String RELYING_PARTY_PARAM = "relyingParty";
 
     /** Class logger. */
-    private final Logger log = LoggerFactory.getLogger(RemoteUserLoginHandler.class);
+    private final Logger log = LoggerFactory.getLogger(ExternalAuthnSystemLoginHandler.class);
 
     /** The context-relative path to the Filter, Servlet, or JSP that triggers the external authentication system. */
     private String externalAuthnPath;
@@ -115,7 +117,14 @@ public class ExternalAuthnSystemLoginHandler extends AbstractLoginHandler {
      * @param httpRequest current HTTP request
      */
     protected void populateRequestAttributes(HttpServletRequest httpRequest) {
-        LoginContext loginContext = HttpServletHelper.getLoginContext(httpRequest);
+        ServletContext servletContext = httpRequest.getSession().getServletContext();
+        StorageService storageService = HttpServletHelper.getStorageService(servletContext);
+
+        LoginContext loginContext = HttpServletHelper.getLoginContext(storageService, servletContext, httpRequest);
+        if(loginContext == null){
+            log.error("Unable to lookup login context for this request");
+            return;
+        }
 
         if (loginContext.isForceAuthRequired()) {
             httpRequest.setAttribute(FORCE_AUTHN_PARAM, Boolean.TRUE);

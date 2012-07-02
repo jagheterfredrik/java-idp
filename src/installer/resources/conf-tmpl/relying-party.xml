@@ -79,9 +79,9 @@
     <metadata:MetadataProvider id="ShibbolethMetadata" xsi:type="metadata:ChainingMetadataProvider">
     
     	<!-- Load the IdP's own metadata.  This is necessary for artifact support. -->
-        <metadata:MetadataProvider id="IdPMD" xsi:type="metadata:ResourceBackedMetadataProvider">
-            <metadata:MetadataResource xsi:type="resource:FilesystemResource" file="$IDP_HOME$/metadata/idp-metadata.xml"/>
-        </metadata:MetadataProvider>
+        <metadata:MetadataProvider id="IdPMD" xsi:type="metadata:FilesystemMetadataProvider"
+                                   metadataFile="$IDP_HOME$/metadata/idp-metadata.xml"
+                                   maxRefreshDelay="P1D" />
         
         <!-- Example metadata provider. -->
         <!-- Reads metadata from a URL and store a backup copy on the file system. -->
