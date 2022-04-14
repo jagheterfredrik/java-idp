@@ -26,7 +26,7 @@
     <properties>
         <svn.relative.location>java-shib-idp2</svn.relative.location>
         <spring.groupId>org.springframework</spring.groupId>
-        <spring.version>2.5.6.SEC03</spring.version>
+        <spring.version>5.0.0.RELEASE</spring.version>
     </properties>
 
     <repositories>
